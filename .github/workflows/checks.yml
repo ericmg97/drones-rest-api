@@ -7,6 +7,9 @@ env:
   DJANGO_SECRET_KEY: changeme
   DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
   DEBUG: 1
+  POSTGRESS_DB: devdb
+  POSTGRES_USER: devuser
+  POSTGRESS_PASSWORD: changeme
 
 jobs:
   test-lint:
