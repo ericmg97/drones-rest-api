@@ -5,6 +5,7 @@ on: [push]
 
 env:
   DEBUG: 1
+  SECRET_KEY: changeme
 
 jobs:
   test-lint:
