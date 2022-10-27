@@ -6,6 +6,10 @@ services:
       context: .
       args:
         - DEV=true
+    environment:
+      - SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - DEBUG=${DEBUG}
     ports:
       - "8000:8000"
     volumes:
