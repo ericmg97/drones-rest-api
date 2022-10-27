@@ -5,6 +5,7 @@ on: [push]
 
 env:
   DJANGO_SECRET_KEY: changeme
+  DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
   DEBUG: 1
 
 jobs:
