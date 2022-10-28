@@ -5,6 +5,8 @@ Tests for models.
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
+from core import models
+
 
 class ModelTests(TestCase):
     """Test models."""
@@ -49,3 +51,18 @@ class ModelTests(TestCase):
 
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
+
+    def test_create_drone(self):
+        """Test creating a drone is successful."""
+        user = get_user_model().objects.create_user(
+            'test@example.com',
+            '12345678'
+        )
+        drone = models.Drone.objects.create(
+            user=user,
+            serial_number='23def9',
+            model=1,
+            weight_limit=400,
+        )
+
+        self.assertEqual(drone.serial_number, str(drone))
