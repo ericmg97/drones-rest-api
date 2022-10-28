@@ -14,16 +14,26 @@ class DroneSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'serial_number',
-            'model',
-            'weight_limit',
             'battery',
-            'state'
+            'state',
             ]
         read_only_fields = [
             'id',
             'serial_number',
+            'battery',
+            'state',
+            ]
+
+
+class DroneDetailSerializer(DroneSerializer):
+    """Serializer for drone detail view."""
+
+    class Meta(DroneSerializer.Meta):
+        fields = DroneSerializer.Meta.fields + [
             'model',
             'weight_limit',
-            'battery',
-            'state'
+            ]
+        read_only_fields = DroneSerializer.Meta.read_only_fields + [
+            'model',
+            'weight_limit',
             ]

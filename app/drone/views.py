@@ -12,7 +12,7 @@ from drone import serializers
 class DroneViewSet(viewsets.ModelViewSet):
     """View for manage drone APIs."""
 
-    serializer_class = serializers.DroneSerializer
+    serializer_class = serializers.DroneDetailSerializer
     queryset = Drone.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -20,3 +20,10 @@ class DroneViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Retrieve drones for authenticated user."""
         return self.queryset.filter(user=self.request.user).order_by('-id')
+
+    def get_serializer_class(self):
+        """Return the serializer class for request."""
+        if self.action == 'list':
+            return serializers.DroneSerializer
+
+        return self.serializer_class

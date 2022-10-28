@@ -11,10 +11,18 @@ from rest_framework.test import APIClient
 
 from core.models import Drone
 
-from drone.serializers import DroneSerializer
+from drone.serializers import (
+    DroneSerializer,
+    DroneDetailSerializer,
+    )
 
 
 DRONES_URL = reverse('drone:drone-list')
+
+
+def detail_url(drone_id):
+    """Create and return a drone detail URL."""
+    return reverse('drone:drone-detail', args=[drone_id])
 
 
 def create_drone(user, serial_number, **params):
@@ -80,4 +88,14 @@ class PrivateDroneAPITests(TestCase):
         drones = Drone.objects.filter(user=self.user)
         serializer = DroneSerializer(drones, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_get_drone_detail(self):
+        """Test get drone detail."""
+        drone = create_drone(user=self.user, serial_number='Test1')
+
+        url = detail_url(drone.id)
+        res = self.client.get(url)
+
+        serializer = DroneDetailSerializer(drone)
         self.assertEqual(res.data, serializer.data)
