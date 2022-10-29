@@ -16,12 +16,15 @@ class DroneViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.DroneDetailSerializer
     queryset = Drone.objects.all()
     http_method_names = ['get', 'post', 'delete']
+    lookup_field = 'serial_number'
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """Retrieve drones for authenticated user."""
-        return self.queryset.filter(user=self.request.user).order_by('-id')
+        return self.queryset.filter(user=self.request.user).order_by(
+            'serial_number'
+        )
 
     def get_serializer_class(self):
         """Return the serializer class for request."""
@@ -39,6 +42,7 @@ class MedicationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """View for manage medications APIs."""
     serializer_class = serializers.MedicationSerializer
     queryset = Medication.objects.all()
+    lookup_field = 'code'
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 

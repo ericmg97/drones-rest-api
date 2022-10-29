@@ -11,14 +11,13 @@ class MedicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Medication
+        lookup_field = 'code'
         fields = [
-            'id',
             'code',
             'name',
             'weight'
             ]
         read_only_fields = [
-            'id',
         ]
 
 
@@ -27,14 +26,13 @@ class DroneSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Drone
+        lookup_field = 'serial_number'
         fields = [
-            'id',
             'serial_number',
             'battery',
             'state',
             ]
         read_only_fields = [
-            'id',
             'battery',
             'state',
             ]
