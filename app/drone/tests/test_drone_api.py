@@ -47,7 +47,7 @@ class PublicDroneAPITests(TestCase):
         self.client = APIClient()
 
     def test_auth_required(self):
-        """Test auth is required t ocall API."""
+        """Test auth is required to call API."""
         res = self.client.get(DRONES_URL)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)

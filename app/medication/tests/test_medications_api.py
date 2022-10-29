@@ -11,7 +11,7 @@ from rest_framework.test import APIClient
 
 from core.models import Medication
 
-from drone.serializers import MedicationSerializer
+from medication.serializers import MedicationSerializer
 
 
 MEDICATIONS_URL = reverse('medication:medication-list')
@@ -27,9 +27,9 @@ def create_medication(user, code, name='Testing', weight='200'):
     )
 
 
-def detail_url(medication_id):
+def detail_url(medication_code):
     """Create and return a medication detail URL."""
-    return reverse('drone:medication-detail', args=[medication_id])
+    return reverse('medication:medication-detail', args=[medication_code])
 
 
 def create_user(email='user@example.com', password='12345678'):
@@ -51,7 +51,7 @@ class PublicMedicationsApiTests(TestCase):
 
 
 class PrivateMedicationsApiTests(TestCase):
-    """Tesst authenticated API requests."""
+    """Test authenticated API requests."""
 
     def setUp(self):
         self.user = create_user()
