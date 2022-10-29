@@ -85,6 +85,7 @@ class Drone(models.Model):
     )
 
     serial_number = models.CharField(
+        primary_key=True,
         max_length=100,
         unique=True,
         validators=[
@@ -132,6 +133,7 @@ class Medication(models.Model):
         on_delete=models.CASCADE,
     )
     code = models.CharField(
+        primary_key=True,
         max_length=50,
         unique=True,
         validators=[
