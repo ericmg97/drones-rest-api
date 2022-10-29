@@ -9,7 +9,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Medication
+from core.models import Medication, Drone
 
 from medication.serializers import MedicationSerializer
 
@@ -25,6 +25,16 @@ def create_medication(user, code, name='Testing', weight='200'):
         name=name,
         weight=weight
     )
+
+
+def create_drone(user, serial_number, **params):
+    """Create and return a sample drone."""
+    drone = Drone.objects.create(
+        user=user,
+        serial_number=serial_number,
+        **params
+    )
+    return drone
 
 
 def detail_url(medication_code):
@@ -82,3 +92,26 @@ class PrivateMedicationsApiTests(TestCase):
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]['code'], medication.code)
         self.assertEqual(res.data[0]['name'], medication.name)
+
+    def test_delete_medication(self):
+        """Test deleting a medication."""
+        medication = create_medication(self.user, 'TESTING1')
+
+        url = detail_url(medication.code)
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        medications = Medication.objects.filter(user=self.user)
+        self.assertFalse(medications.exists())
+
+    def test_delete_unused_medication(self):
+        """Test deleting a medication cannot be inside of any drone."""
+        medication = create_medication(self.user, 'TESTING1')
+        drone = create_drone(self.user, 'TESTING')
+        drone.medications.add(medication)
+
+        url = detail_url(medication.code)
+        self.client.delete(url)
+
+        medications = Medication.objects.filter(user=self.user)
+        self.assertTrue(medications.exists())

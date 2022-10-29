@@ -16,10 +16,12 @@ class DroneSerializer(serializers.ModelSerializer):
             'serial_number',
             'battery',
             'state',
+            'medications'
             ]
         read_only_fields = [
             'battery',
             'state',
+            'medications'
             ]
 
 
