@@ -139,7 +139,7 @@ class Medication(models.Model):
         validators=[
             MinLengthValidator(5),
             RegexValidator(
-                regex=r'(A-Z0-9_)+',
+                regex=r'\b[A-Z0-9_]+\b',
                 message='Only uppercase, numbers and underscore.',
             )
         ]
@@ -150,7 +150,7 @@ class Medication(models.Model):
         validators=[
             MinLengthValidator(5),
             RegexValidator(
-                regex=r'(A-z0-9_-)+',
+                regex=r'\b[a-zA-Z0-9_-]+\b',
                 message='Only Alphanumeric, underscore and score.'
             )
         ]
