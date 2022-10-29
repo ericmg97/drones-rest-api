@@ -9,7 +9,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Drone, Medication
+from core.models import Medication
 
 from medication.serializers import MedicationSerializer
 

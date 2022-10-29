@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from core.models import Medication
 
+
 class MedicationSerializer(serializers.ModelSerializer):
     """Serializer for medications."""
 
