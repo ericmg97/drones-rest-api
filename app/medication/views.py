@@ -23,14 +23,14 @@ class MedicationViewSet(viewsets.ModelViewSet):
         """Filter queryset to authenticated user."""
         return self.queryset.filter(user=self.request.user).order_by('-name')
 
-    def perform_destroy(self, medication):
+    def perform_destroy(self, instance):
         """Destroy the medication."""
-        if Drone.objects.filter(medications__code=medication.code).exists():
+        if Drone.objects.filter(medications__code=instance.code).exists():
             raise PermissionDenied(
                 detail='The medication is currently inside of a dron.'
             )
 
-        return Medication.delete(medication)
+        return Medication.delete(instance)
 
     def perform_create(self, serializer):
         """Create new medication."""

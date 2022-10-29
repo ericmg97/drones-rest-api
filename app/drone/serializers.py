@@ -4,10 +4,12 @@ Serializers for drone APIs
 from rest_framework import serializers
 
 from core.models import Drone
+from medication.serializers import MedicationSerializer
 
 
 class DroneSerializer(serializers.ModelSerializer):
     """Serializer for drones."""
+    medications = MedicationSerializer(many=True, required=False)
 
     class Meta:
         model = Drone
@@ -21,7 +23,6 @@ class DroneSerializer(serializers.ModelSerializer):
         read_only_fields = [
             'battery',
             'state',
-            'medications'
             ]
 
 
