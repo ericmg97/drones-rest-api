@@ -12,7 +12,7 @@ from drone import views
 
 
 router = DefaultRouter()
-router.register('drones', views.DroneViewSet)
+router.register('drone', views.DroneViewSet)
 
 app_name = 'drone'
 
