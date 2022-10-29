@@ -12,7 +12,7 @@ from medication import views
 
 
 router = DefaultRouter()
-router.register('medications', views.MedicationViewSet)
+router.register('medication', views.MedicationViewSet)
 
 app_name = 'medication'
 
