@@ -35,6 +35,11 @@ def create_drone(user, serial_number, **params):
     return drone
 
 
+def create_user(**params):
+    """Create and return a new user."""
+    return get_user_model().objects.create_user(**params)
+
+
 class PublicDroneAPITests(TestCase):
     """Test unauthenticated API requests."""
 
@@ -53,11 +58,7 @@ class PrivateDroneAPITests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-
-        self.user = get_user_model().objects.create_user(
-            'test@example.com',
-            '12345678'
-        )
+        self.user = create_user(email='test@example.com', password='12345678')
         self.client.force_authenticate(self.user)
 
     def test_retrieve_drones(self):
@@ -76,9 +77,9 @@ class PrivateDroneAPITests(TestCase):
     def test_drone_list_limited_to_user(self):
         """Test list of drones is limited to authenticated user."""
 
-        other_user = get_user_model().objects.create_user(
-            'test2@example.com',
-            '12345678',
+        other_user = create_user(
+            email='test2@example.com',
+            password='12345678'
         )
         create_drone(user=other_user, serial_number='Test1')
         create_drone(user=self.user, serial_number='Test2')
@@ -99,3 +100,65 @@ class PrivateDroneAPITests(TestCase):
 
         serializer = DroneDetailSerializer(drone)
         self.assertEqual(res.data, serializer.data)
+
+    def test_create_drone(self):
+        """Test creating a drone."""
+        payload = {
+            'serial_number': 'Test1',
+            'drone_model': 2,
+            'weight_limit': 459,
+        }
+        res = self.client.post(DRONES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        drone = Drone.objects.get(id=res.data['id'])
+        for k, v in payload.items():
+            self.assertEqual(getattr(drone, k), v)
+        self.assertEqual(drone.user, self.user)
+
+    def test_cannot_update(self):
+        """Test that put and patch enpoints are disabled."""
+        drone = create_drone(user=self.user, serial_number='Test1')
+        url = detail_url(drone.id)
+
+        payload = {'serial_number': 'test23'}
+        res = self.client.patch(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+        res = self.client.put(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_cannot_create_incorrect_sn(self):
+        """Test cannot create drone with incorrect serial number."""
+
+        payload = {'serial_number': 'tst'}
+        res = self.client.post(DRONES_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(Drone.objects.filter(serial_number='tst').exists())
+
+    def test_delete_drone(self):
+        """Test deleting a drone successful."""
+        drone = create_drone(user=self.user, serial_number='Test1')
+
+        url = detail_url(drone.id)
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Drone.objects.filter(id=drone.id).exists())
+
+    def test_delete_other_user_drone_error(self):
+        """Test rying to delete another users drone gives error."""
+
+        other_user = create_user(
+            email='test2@example.com',
+            password='12345678'
+        )
+        drone = create_drone(user=other_user, serial_number='Test1')
+
+        url = detail_url(drone.id)
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertTrue(Drone.objects.filter(id=drone.id).exists())

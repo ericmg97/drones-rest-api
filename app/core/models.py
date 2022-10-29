@@ -57,10 +57,10 @@ class Drone(models.Model):
     """Drone object."""
 
     class DroneModel(models.IntegerChoices):
-        LIGHTWEIGHT = 0, _('Lightwheight')
-        MIDDLEWEIGHT = 1, _('Middlewheight')
-        CRUISERWEIGHT = 2, _('Cruiserwheight')
-        HEAVYWEIGHT = 3, _('Heavywheight')
+        LIGHTWEIGHT = 0, _('Lightweight')
+        MIDDLEWEIGHT = 1, _('Middleweight')
+        CRUISERWEIGHT = 2, _('Cruiserweight')
+        HEAVYWEIGHT = 3, _('Heavyweight')
 
     class DroneState(models.IntegerChoices):
         IDLE = 0, _('Idle')
@@ -70,13 +70,13 @@ class Drone(models.Model):
         DELIVERED = 4, _('Delivered')
         RETURNING = 5, _('Returning')
 
-    def get_model(self):
+    def get_drone_model(self):
         """Get value from choices of drone model enum."""
-        return self.DroneModel[self.model]
+        return self.DroneModel(self.model)
 
-    def get_state(self):
+    def get_drone_state(self):
         """Get value from choices of drone state enum."""
-        return self.DroneState[self.model]
+        return self.DroneState(self.model)
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -91,7 +91,7 @@ class Drone(models.Model):
         ]
         )
 
-    model = models.IntegerField(
+    drone_model = models.IntegerField(
         default=DroneModel.LIGHTWEIGHT,
         choices=DroneModel.choices,
         )

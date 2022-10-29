@@ -14,6 +14,7 @@ class DroneViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.DroneDetailSerializer
     queryset = Drone.objects.all()
+    http_method_names = ['get', 'post', 'delete']
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -27,3 +28,7 @@ class DroneViewSet(viewsets.ModelViewSet):
             return serializers.DroneSerializer
 
         return self.serializer_class
+
+    def perform_create(self, serializer):
+        """Create new drone."""
+        serializer.save(user=self.request.user)

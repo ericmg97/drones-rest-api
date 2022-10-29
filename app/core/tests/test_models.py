@@ -61,7 +61,7 @@ class ModelTests(TestCase):
         drone = models.Drone.objects.create(
             user=user,
             serial_number='23def9',
-            model=1,
+            drone_model=1,
             weight_limit=400,
         )
 
