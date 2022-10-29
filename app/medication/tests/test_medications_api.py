@@ -14,7 +14,7 @@ from core.models import Medication
 from drone.serializers import MedicationSerializer
 
 
-MEDICATIONS_URL = reverse('drone:medication-list')
+MEDICATIONS_URL = reverse('medication:medication-list')
 
 
 def create_medication(user, code, name='Testing', weight='200'):
@@ -81,4 +81,4 @@ class PrivateMedicationsApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]['code'], medication.code)
-        self.assertEqual(res.data[0]['id'], medication.id)
+        self.assertEqual(res.data[0]['name'], medication.name)
