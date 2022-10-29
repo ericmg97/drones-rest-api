@@ -14,7 +14,7 @@ from core.models import Medication
 from drone.serializers import MedicationSerializer
 
 
-MEDICATIONS_URL = reverse('drone:medication-list')
+MEDICATIONS_URL = reverse('medication:medication-list')
 
 
 def create_medication(user, code, name='Testing', weight='200'):
