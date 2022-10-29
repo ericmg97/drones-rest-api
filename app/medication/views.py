@@ -7,10 +7,10 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 from core.models import Medication
-from drone import serializers
+from medication import serializers
 
 
-class MedicationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class MedicationViewSet(mixins.ListModelMixin, mixins.DestroyModelMixin, mixins.RetrieveModelMixin,viewsets.GenericViewSet):
     """View for manage medications APIs."""
     serializer_class = serializers.MedicationSerializer
     queryset = Medication.objects.all()
