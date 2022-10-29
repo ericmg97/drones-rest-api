@@ -8,13 +8,13 @@ from django.urls import (
 
 from rest_framework.routers import DefaultRouter
 
-from drone import views
+from medication import views
 
 
 router = DefaultRouter()
-router.register('drone', views.DroneViewSet)
+router.register('medication', views.MedicationViewSet)
 
-app_name = 'drone'
+app_name = 'medication'
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -7,7 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import (
     MinValueValidator,
     MaxValueValidator,
-    MinLengthValidator
+    MinLengthValidator,
+    RegexValidator,
 )
 from django.db import models
 from django.contrib.auth.models import (
@@ -84,6 +85,7 @@ class Drone(models.Model):
     )
 
     serial_number = models.CharField(
+        primary_key=True,
         max_length=100,
         unique=True,
         validators=[
@@ -117,5 +119,49 @@ class Drone(models.Model):
         choices=DroneState.choices,
     )
 
+    medications = models.ManyToManyField('Medication')
+
     def __str__(self):
         return self.serial_number
+
+
+class Medication(models.Model):
+    """Medications that can be loaded on drones."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    code = models.CharField(
+        primary_key=True,
+        max_length=50,
+        unique=True,
+        validators=[
+            MinLengthValidator(5),
+            RegexValidator(
+                regex=r'\b[A-Z0-9_]+\b',
+                message='Only uppercase, numbers and underscore.',
+            )
+        ]
+        )
+
+    name = models.CharField(
+        max_length=255,
+        validators=[
+            MinLengthValidator(5),
+            RegexValidator(
+                regex=r'\b[a-zA-Z0-9_-]+\b',
+                message='Only Alphanumeric, underscore and score.'
+            )
+        ]
+    )
+
+    weight = models.IntegerField(
+        validators=[
+            MaxValueValidator(500),
+            MinValueValidator(1)
+        ]
+    )
+
+    def __str__(self):
+        return self.name

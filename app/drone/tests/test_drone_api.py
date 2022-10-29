@@ -20,9 +20,9 @@ from drone.serializers import (
 DRONES_URL = reverse('drone:drone-list')
 
 
-def detail_url(drone_id):
+def detail_url(drone_sn):
     """Create and return a drone detail URL."""
-    return reverse('drone:drone-detail', args=[drone_id])
+    return reverse('drone:drone-detail', args=[drone_sn])
 
 
 def create_drone(user, serial_number, **params):
@@ -47,7 +47,7 @@ class PublicDroneAPITests(TestCase):
         self.client = APIClient()
 
     def test_auth_required(self):
-        """Test auth is required t ocall API."""
+        """Test auth is required to call API."""
         res = self.client.get(DRONES_URL)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -69,7 +69,7 @@ class PrivateDroneAPITests(TestCase):
 
         res = self.client.get(DRONES_URL)
 
-        drones = Drone.objects.all().order_by('-id')
+        drones = Drone.objects.all().order_by('serial_number')
         serializer = DroneSerializer(drones, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
@@ -95,7 +95,7 @@ class PrivateDroneAPITests(TestCase):
         """Test get drone detail."""
         drone = create_drone(user=self.user, serial_number='Test1')
 
-        url = detail_url(drone.id)
+        url = detail_url(drone.serial_number)
         res = self.client.get(url)
 
         serializer = DroneDetailSerializer(drone)
@@ -111,7 +111,7 @@ class PrivateDroneAPITests(TestCase):
         res = self.client.post(DRONES_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        drone = Drone.objects.get(id=res.data['id'])
+        drone = Drone.objects.get(serial_number=res.data['serial_number'])
         for k, v in payload.items():
             self.assertEqual(getattr(drone, k), v)
         self.assertEqual(drone.user, self.user)
@@ -119,7 +119,7 @@ class PrivateDroneAPITests(TestCase):
     def test_cannot_update(self):
         """Test that put and patch enpoints are disabled."""
         drone = create_drone(user=self.user, serial_number='Test1')
-        url = detail_url(drone.id)
+        url = detail_url(drone.serial_number)
 
         payload = {'serial_number': 'test23'}
         res = self.client.patch(url, payload)
@@ -142,11 +142,13 @@ class PrivateDroneAPITests(TestCase):
         """Test deleting a drone successful."""
         drone = create_drone(user=self.user, serial_number='Test1')
 
-        url = detail_url(drone.id)
+        url = detail_url(drone.serial_number)
         res = self.client.delete(url)
 
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(Drone.objects.filter(id=drone.id).exists())
+        self.assertFalse(
+            Drone.objects.filter(serial_number=drone.serial_number).exists()
+        )
 
     def test_delete_other_user_drone_error(self):
         """Test rying to delete another users drone gives error."""
@@ -157,8 +159,10 @@ class PrivateDroneAPITests(TestCase):
         )
         drone = create_drone(user=other_user, serial_number='Test1')
 
-        url = detail_url(drone.id)
+        url = detail_url(drone.serial_number)
         res = self.client.delete(url)
 
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertTrue(Drone.objects.filter(id=drone.id).exists())
+        self.assertTrue(
+            Drone.objects.filter(serial_number=drone.serial_number).exists()
+        )

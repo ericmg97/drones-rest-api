@@ -44,5 +44,22 @@ class UserAdmin(BaseUserAdmin):
     )
 
 
+class MedicationAdmin(admin.ModelAdmin):
+    ordering = ['code']
+    list_display = ['code', 'name', 'weight']
+
+
+class DroneAdmin(admin.ModelAdmin):
+    ordering = ['serial_number']
+    list_display = [
+        'serial_number',
+        'drone_model',
+        'weight_limit',
+        'battery',
+        'state']
+    readonly_fields = ['medications']
+
+
 admin.site.register(models.User, UserAdmin)
-admin.site.register(models.Drone)
+admin.site.register(models.Drone, DroneAdmin)
+admin.site.register(models.Medication, MedicationAdmin)

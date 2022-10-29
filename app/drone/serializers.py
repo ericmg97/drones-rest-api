@@ -11,16 +11,17 @@ class DroneSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Drone
+        lookup_field = 'serial_number'
         fields = [
-            'id',
             'serial_number',
             'battery',
             'state',
+            'medications'
             ]
         read_only_fields = [
-            'id',
             'battery',
             'state',
+            'medications'
             ]
 
 
