@@ -46,3 +46,4 @@ class UserAdmin(BaseUserAdmin):
 
 admin.site.register(models.User, UserAdmin)
 admin.site.register(models.Drone)
+admin.site.register(models.Medication)
