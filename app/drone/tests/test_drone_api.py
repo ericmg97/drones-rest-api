@@ -121,7 +121,6 @@ class PrivateDroneAPITests(TestCase):
         payload = {
             'serial_number': 'Test1',
             'drone_model': 2,
-            'weight_limit': 459,
         }
         res = self.client.post(DRONES_URL, payload)
 
@@ -184,7 +183,11 @@ class PrivateDroneAPITests(TestCase):
 
     def test_add_medication_drone(self):
         """Test add a medication to selected drone."""
-        drone = create_drone(user=self.user, serial_number='Test1')
+        drone = create_drone(
+            user=self.user,
+            serial_number='Test1',
+            drone_model=3)
+
         medication = create_medication(user=self.user, code='TEST1')
         medication2 = create_medication(user=self.user, code='TEST2')
 
@@ -238,7 +241,8 @@ class PrivateDroneAPITests(TestCase):
         """Test add medications to overweight the selected drone."""
         drone = create_drone(
             user=self.user,
-            serial_number='Test1'
+            serial_number='Test1',
+            drone_model=3,
             )
 
         medication = create_medication(

@@ -47,6 +47,17 @@ class UserAdmin(BaseUserAdmin):
 class MedicationAdmin(admin.ModelAdmin):
     ordering = ['code']
     list_display = ['code', 'name', 'weight']
+    readonly_fields = []
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super(MedicationAdmin, self).get_readonly_fields(
+            request,
+            obj
+            )
+
+        if obj:
+            return readonly_fields + ['code', 'weight']
+        return readonly_fields
 
 
 class DroneAdmin(admin.ModelAdmin):
@@ -57,7 +68,17 @@ class DroneAdmin(admin.ModelAdmin):
         'weight_limit',
         'battery',
         'state']
-    readonly_fields = ['medications']
+    readonly_fields = ['battery', 'state', 'weight_limit', 'medications']
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super(DroneAdmin, self).get_readonly_fields(
+            request,
+            obj
+            )
+
+        if obj:
+            return readonly_fields + ['drone_model']
+        return readonly_fields
 
 
 admin.site.register(models.User, UserAdmin)

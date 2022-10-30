@@ -4,6 +4,7 @@ Database models.
 
 from model_utils import Choices
 from django.conf import settings
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import (
     MinValueValidator,
@@ -65,6 +66,13 @@ class Drone(models.Model):
         (3, 'hw', _('Heavyweight')),
     )
 
+    DRONE_WEIGHTS = [
+        100,
+        250,
+        350,
+        500
+    ]
+
     DRONE_STATUS = Choices(
         (0, 'idl', _('Idle')),
         (1, 'ldg', _('Loading')),
@@ -94,7 +102,6 @@ class Drone(models.Model):
         )
 
     weight_limit = models.IntegerField(
-        default=500,
         validators=[
             MaxValueValidator(500),
             MinValueValidator(1)
@@ -118,6 +125,15 @@ class Drone(models.Model):
 
     def __str__(self):
         return self.serial_number
+
+
+@receiver(models.signals.pre_save, sender=Drone)
+def set_default_weight_limit(sender, instance, *args, **kwargs):
+    """
+    Set the default value for `weight_limit` on the `instance`.
+    """
+    if not instance.weight_limit:
+        instance.weight_limit = instance.DRONE_WEIGHTS[instance.drone_model]
 
 
 class Medication(models.Model):

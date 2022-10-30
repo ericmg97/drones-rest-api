@@ -40,12 +40,6 @@ class DroneSerializer(serializers.ModelSerializer):
     """Serializer for drones."""
     drone_model = ChoicesField(Drone.DRONE_MODEL)
     state = serializers.CharField(source='get_state_display', read_only=True)
-    weight_limit = serializers.IntegerField(
-        default=500,
-        required=False,
-        max_value=500,
-        min_value=1,
-        )
 
     class Meta:
         model = Drone
@@ -61,7 +55,8 @@ class DroneSerializer(serializers.ModelSerializer):
         read_only_fields = [
             'battery',
             'state',
-            'medications'
+            'weight_limit',
+            'medications',
             ]
 
 
@@ -130,7 +125,7 @@ class DroneAddSerializer(serializers.ModelSerializer):
                         insert_meds.append(new_med)
                     except Medication.DoesNotExist:
                         if len(user_meds):
-                            detail = 'Acceptable values are '\
+                            detail = 'The available medications are '\
                                     f'{[m.code for m in user_meds]}.'
                             raise ParseError(detail=detail)
                         else:
