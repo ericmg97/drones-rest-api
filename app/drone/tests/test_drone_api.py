@@ -117,15 +117,12 @@ class PrivateDroneAPITests(TestCase):
         self.assertEqual(drone.user, self.user)
 
     def test_cannot_update(self):
-        """Test that put and patch enpoints are disabled."""
+        """Test that put enpoint is disabled."""
         drone = create_drone(user=self.user, serial_number='Test1')
         url = detail_url(drone.serial_number)
 
         payload = {'serial_number': 'test23'}
-        res = self.client.patch(url, payload)
-
-        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
-
+        
         res = self.client.put(url, payload)
 
         self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)

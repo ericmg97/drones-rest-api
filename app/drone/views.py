@@ -14,7 +14,7 @@ class DroneViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.DroneDetailSerializer
     queryset = Drone.objects.all()
-    http_method_names = ['get', 'post', 'delete']
+    http_method_names = ['get', 'post', 'patch', 'delete']
     lookup_field = 'serial_number'
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -29,6 +29,8 @@ class DroneViewSet(viewsets.ModelViewSet):
         """Return the serializer class for request."""
         if self.action == 'list':
             return serializers.DroneSerializer
+        elif self.action == 'update' or self.action == 'partial_update':
+            return serializers.DroneAddSerializer
 
         return self.serializer_class
 

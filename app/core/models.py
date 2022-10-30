@@ -2,6 +2,7 @@
 Database models.
 """
 
+from model_utils import Choices
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import (
@@ -57,27 +58,21 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Drone(models.Model):
     """Drone object."""
 
-    class DroneModel(models.IntegerChoices):
-        LIGHTWEIGHT = 0, _('Lightweight')
-        MIDDLEWEIGHT = 1, _('Middleweight')
-        CRUISERWEIGHT = 2, _('Cruiserweight')
-        HEAVYWEIGHT = 3, _('Heavyweight')
+    DRONE_MODEL = Choices(
+        (0, 'lw', 'Lightweight'),
+        (1, 'mw', 'Middleweight'),
+        (2, 'cw', 'Cruiserweight'),
+        (3, 'hw', 'Heavyweight'),
+    )
 
-    class DroneState(models.IntegerChoices):
-        IDLE = 0, _('Idle')
-        LOADING = 1, _('Loading')
-        LOADED = 2, _('Loaded')
-        DELIVERING = 3, _('Delivering')
-        DELIVERED = 4, _('Delivered')
-        RETURNING = 5, _('Returning')
-
-    def get_drone_model(self):
-        """Get value from choices of drone model enum."""
-        return self.DroneModel(self.model)
-
-    def get_drone_state(self):
-        """Get value from choices of drone state enum."""
-        return self.DroneState(self.model)
+    DRONE_STATUS = Choices(
+        (0, 'idl', 'Idle'),
+        (1, 'ldg', 'Loading'),
+        (2, 'ldd', 'Loaded'),
+        (3, 'dlg', 'Delivering'),
+        (4, 'dld', 'Delivered'),
+        (5, 'ret', 'Returning'),
+    )
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -94,8 +89,8 @@ class Drone(models.Model):
         )
 
     drone_model = models.IntegerField(
-        default=DroneModel.LIGHTWEIGHT,
-        choices=DroneModel.choices,
+        default=DRONE_MODEL.lw,
+        choices=DRONE_MODEL,
         )
 
     weight_limit = models.IntegerField(
@@ -115,8 +110,8 @@ class Drone(models.Model):
         )
 
     state = models.IntegerField(
-        default=DroneState.IDLE,
-        choices=DroneState.choices,
+        default=DRONE_STATUS.idl,
+        choices=DRONE_STATUS,
     )
 
     medications = models.ManyToManyField('Medication')
