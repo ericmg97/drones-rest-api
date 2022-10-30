@@ -25,6 +25,11 @@ def detail_url(drone_sn):
     return reverse('drone:drone-detail', args=[drone_sn])
 
 
+def add_med_url(drone_sn):
+    """Create and return a drone load-medication URL."""
+    return reverse('drone:drone-load-medication', args=[drone_sn])
+
+
 def create_drone(user, serial_number, **params):
     """Create and return a sample drone."""
     drone = Drone.objects.create(
@@ -127,11 +132,14 @@ class PrivateDroneAPITests(TestCase):
         self.assertEqual(drone.user, self.user)
 
     def test_cannot_update(self):
-        """Test that put enpoint is disabled."""
+        """Test that put and patch enpoints are disabled."""
         drone = create_drone(user=self.user, serial_number='Test1')
         url = detail_url(drone.serial_number)
 
         payload = {'serial_number': 'test23'}
+        res = self.client.patch(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
         res = self.client.put(url, payload)
 
@@ -181,8 +189,8 @@ class PrivateDroneAPITests(TestCase):
         medication2 = create_medication(user=self.user, code='TEST2')
 
         payload = {'medications': ['TEST1', 'TEST2']}
-        url = detail_url(drone.serial_number)
-        res = self.client.patch(url, payload, format='json')
+        url = add_med_url(drone.serial_number)
+        res = self.client.post(url, payload, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn(medication2, drone.medications.all())
@@ -194,8 +202,8 @@ class PrivateDroneAPITests(TestCase):
         medication = create_medication(user=self.user, code='TEST1')
 
         payload = {'medications': ['TEST1', 'TEST1']}
-        url = detail_url(drone.serial_number)
-        res = self.client.patch(url, payload, format='json')
+        url = add_med_url(drone.serial_number)
+        res = self.client.post(url, payload, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotIn(medication, drone.medications.all())
@@ -219,8 +227,8 @@ class PrivateDroneAPITests(TestCase):
             )
 
         payload = {'medications': ['TEST1', 'TEST2']}
-        url = detail_url(drone.serial_number)
-        res = self.client.patch(url, payload, format='json')
+        url = add_med_url(drone.serial_number)
+        res = self.client.post(url, payload, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotIn(medication2, drone.medications.all())
@@ -239,17 +247,17 @@ class PrivateDroneAPITests(TestCase):
             weight=301
             )
 
-        url = detail_url(drone.serial_number)
+        url = add_med_url(drone.serial_number)
 
         payload = {'medications': ['TEST1']}
-        res1 = self.client.patch(url, payload, format='json')
+        res1 = self.client.post(url, payload, format='json')
 
         self.assertEqual(res1.status_code, status.HTTP_200_OK)
 
         medication2 = create_medication(user=self.user, code='TEST2')
 
         payload = {'medications': ['TEST2']}
-        res = self.client.patch(url, payload, format='json')
+        res = self.client.post(url, payload, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotIn(medication2, drone.medications.all())
@@ -270,8 +278,8 @@ class PrivateDroneAPITests(TestCase):
             )
 
         payload = {'medications': ['TEST1']}
-        url = detail_url(drone.serial_number)
-        res = self.client.patch(url, payload, format='json')
+        url = add_med_url(drone.serial_number)
+        res = self.client.post(url, payload, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotIn(medication, drone.medications.all())

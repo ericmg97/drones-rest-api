@@ -2,9 +2,12 @@
 Views for the drone API.
 """
 from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
+from django.db.models import Q
 from core.models import Drone
 from drone import serializers
 
@@ -14,7 +17,7 @@ class DroneViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.DroneDetailSerializer
     queryset = Drone.objects.all()
-    http_method_names = ['get', 'post', 'patch', 'delete']
+    http_method_names = ['get', 'post', 'delete']
     lookup_field = 'serial_number'
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -27,7 +30,7 @@ class DroneViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         """Return the serializer class for request."""
-        if self.action == 'list':
+        if self.action == 'list' or self.action == 'available':
             return serializers.DroneSerializer
         elif self.action == 'update' or self.action == 'partial_update':
             return serializers.DroneAddSerializer
@@ -37,3 +40,26 @@ class DroneViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Create new drone."""
         serializer.save(user=self.request.user)
+
+    @action(detail=False, serializer_class=serializers.DroneSerializer)
+    def available(self, *args, **kwargs):
+        """List all available drones to load medications."""
+
+        available_drones = Drone.objects.filter(Q(state=0) | Q(state=1))
+        serializer = serializers.DroneSerializer(available_drones, many=True)
+
+        return Response(serializer.data)
+
+    @action(detail=True,
+            serializer_class=serializers.DroneAddSerializer,
+            methods=['post'])
+    def load_medication(self, request, *args, **kwargs):
+        """Loads the medication into the selected drone."""
+        obj = self.get_object()
+
+        serializer = serializers.DroneAddSerializer(
+            obj,
+            context={'request': request})
+        serializer.update(obj, request.data)
+
+        return Response(serializer.data)
