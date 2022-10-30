@@ -58,34 +58,26 @@ class DroneViewSet(viewsets.ModelViewSet):
     def load_medication(self, request, *args, **kwargs):
         """Loads the medication into the selected drone."""
         obj = self.get_object()
-        serializer = self.get_serializer(obj, data=request.data)
-
-        if serializer.is_valid():
-            serializer.update(obj, request.data)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return self.get_and_return_response(request, obj, True)
 
     @action(detail=True)
     def check_medication(self, request, *args, **kwargs):
         """Return the medications loaded into the selected drone."""
         obj = self.get_object()
-        serializer = self.get_serializer(obj, data=request.data)
-
-        if serializer.is_valid():
-            serializer.update(obj, request.data)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return self.get_and_return_response(request, obj)
 
     @action(detail=True)
     def check_battery(self, request, *args, **kwargs):
         """Check the battery of the drone."""
         obj = self.get_object()
+        return self.get_and_return_response(request, obj)
+
+    def get_and_return_response(self, request, obj, update=False):
         serializer = self.get_serializer(obj, data=request.data)
 
         if serializer.is_valid():
-            serializer.update(obj, request.data)
+            if update:
+                serializer.update(obj, request.data)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
