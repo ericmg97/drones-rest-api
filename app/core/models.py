@@ -1,6 +1,8 @@
 """
 Database models.
 """
+import uuid
+import os
 
 from model_utils import Choices
 from django.conf import settings
@@ -18,6 +20,14 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin,
 )
+
+
+def medication_image_file_path(instance, filename):
+    """Generate file path for new medication image."""
+    ext = os.path.splitext(filename)[1]
+    filename = f'{uuid.uuid4()}{ext}'
+
+    return os.path.join('uploads', 'medication', filename)
 
 
 class UserManager(BaseUserManager):
@@ -173,6 +183,7 @@ class Medication(models.Model):
             MinValueValidator(1)
         ]
     )
+    image = models.ImageField(null=True, upload_to=medication_image_file_path)
 
     def __str__(self):
         return self.name
