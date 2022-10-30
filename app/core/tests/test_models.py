@@ -1,9 +1,26 @@
 """
 Tests for models.
 """
-
+from unittest.mock import patch
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+
+from core import models
+
+
+def create_user(email='user@example.com', password='12345678'):
+    """Create and return a new user."""
+    return get_user_model().objects.create_user(email, password)
+
+
+def create_medication(user, code, name='Testing', weight='200'):
+    """Create and return a new medication."""
+    return models.Medication.objects.create(
+        user=user,
+        code=code,
+        name=name,
+        weight=weight
+    )
 
 
 class ModelTests(TestCase):
@@ -49,3 +66,35 @@ class ModelTests(TestCase):
 
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
+
+    def test_create_drone(self):
+        """Test creating a drone is successful."""
+        user = get_user_model().objects.create_user(
+            'test@example.com',
+            '12345678'
+        )
+        drone = models.Drone.objects.create(
+            user=user,
+            serial_number='23def9',
+            drone_model=1,
+            weight_limit=400,
+        )
+
+        self.assertEqual(drone.serial_number, str(drone))
+
+    def test_create_medication(self):
+        """Test creating a medication is successful."""
+
+        user = create_user()
+        medication = create_medication(user, 'TESTING_1')
+
+        self.assertEqual(str(medication), medication.name)
+
+    @patch('core.models.uuid.uuid4')
+    def test_medication_file_name_uuid(self, mock_uuid):
+        """Test generating image path."""
+        uuid = 'test-uuid'
+        mock_uuid.return_value = uuid
+        file_path = models.medication_image_file_path(None, 'example.jpg')
+
+        self.assertEqual(file_path, f'uploads/medication/{uuid}.jpg')
