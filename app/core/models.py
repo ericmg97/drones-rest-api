@@ -132,7 +132,7 @@ def set_default_weight_limit(sender, instance, *args, **kwargs):
     """
     Set the default value for `weight_limit` on the `instance`.
     """
-    if not instance.weight_limit:
+    if instance.weight_limit is None:
         instance.weight_limit = instance.DRONE_WEIGHTS[instance.drone_model]
 
 
