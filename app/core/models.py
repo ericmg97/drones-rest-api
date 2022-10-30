@@ -187,3 +187,11 @@ class Medication(models.Model):
 
     def __str__(self):
         return self.name
+
+
+@receiver(models.signals.post_delete, sender=Medication)
+def post_delete_medication(sender, instance, *args, **kwargs):
+    """ Clean Old Image file """
+    if instance.image:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)
