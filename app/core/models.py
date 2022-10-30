@@ -59,19 +59,19 @@ class Drone(models.Model):
     """Drone object."""
 
     DRONE_MODEL = Choices(
-        (0, 'lw', 'Lightweight'),
-        (1, 'mw', 'Middleweight'),
-        (2, 'cw', 'Cruiserweight'),
-        (3, 'hw', 'Heavyweight'),
+        (0, 'lw', _('Lightweight')),
+        (1, 'mw', _('Middleweight')),
+        (2, 'cw', _('Cruiserweight')),
+        (3, 'hw', _('Heavyweight')),
     )
 
     DRONE_STATUS = Choices(
-        (0, 'idl', 'Idle'),
-        (1, 'ldg', 'Loading'),
-        (2, 'ldd', 'Loaded'),
-        (3, 'dlg', 'Delivering'),
-        (4, 'dld', 'Delivered'),
-        (5, 'ret', 'Returning'),
+        (0, 'idl', _('Idle')),
+        (1, 'ldg', _('Loading')),
+        (2, 'ldd', _('Loaded')),
+        (3, 'dlg', _('Delivering')),
+        (4, 'dld', _('Delivered')),
+        (5, 'ret', _('Returning')),
     )
 
     user = models.ForeignKey(

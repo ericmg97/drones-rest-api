@@ -3,7 +3,9 @@ Serializers for drone APIs
 """
 from rest_framework import serializers
 
-from core.models import Drone
+from core.models import Drone, Medication
+from rest_framework.exceptions import ParseError
+
 from medication.serializers import MedicationSerializer
 
 
@@ -25,17 +27,25 @@ class ChoicesField(serializers.ChoiceField):
             try:
                 if i == int(data):
                     return i
-            except:
+            except ValueError:
                 if str(self._choices[i]) == data:
                     return i
-            
-        raise serializers.ValidationError(f"Acceptable values are {dict(self._choices)}.")
+
+        raise serializers.ValidationError(
+            f'Acceptable values are {dict(self._choices)}.'
+        )
 
 
 class DroneSerializer(serializers.ModelSerializer):
     """Serializer for drones."""
     drone_model = ChoicesField(Drone.DRONE_MODEL)
     state = serializers.CharField(source='get_state_display', read_only=True)
+    weight_limit = serializers.IntegerField(
+        default=500,
+        required=False,
+        max_value=500,
+        min_value=1,
+        )
 
     class Meta:
         model = Drone
@@ -63,7 +73,7 @@ class DroneDetailSerializer(DroneSerializer):
         fields = DroneSerializer.Meta.fields + [
             'medications',
             ]
-        
+
 
 class DroneAddSerializer(serializers.ModelSerializer):
     """Serializer for add medication to drone."""
@@ -72,8 +82,70 @@ class DroneAddSerializer(serializers.ModelSerializer):
         lockup_field = 'serial_number'
         fields = [
             'serial_number',
+            'weight_limit',
             'medications',
             ]
         read_only_fields = [
+            'weight_limit',
             'serial_number',
             ]
+
+    def update(self, instance, validated_data):
+        """Add medication to drone."""
+        if instance.state == Drone.DRONE_STATUS.idl or \
+                instance.state == Drone.DRONE_STATUS.ldg:
+
+            medications = validated_data.pop('medications', None)
+
+            if len(set(medications)) != len(medications):
+                raise ParseError(detail='You cannot load the same '
+                                        'medication twice into a drone.')
+
+            if medications is not None and len(medications) > 0:
+                insert_meds = []
+                auth_user = self.context['request'].user
+                user_meds = Medication.objects.filter(user=auth_user)
+                drone_remianing_space = instance.weight_limit
+
+                for med in medications:
+                    if instance.medications.filter(code=med.code).exists():
+                        raise ParseError(detail=f'The medication {med.code} '
+                                                'is already loaded into this'
+                                                ' drone. You cannot load the'
+                                                ' same medication twice into'
+                                                ' a drone.')
+
+                for med in medications:
+                    drone_remianing_space -= med.weight
+
+                    if drone_remianing_space >= 0:
+                        try:
+                            insert_meds.append(
+                                Medication.objects.get(
+                                    user=auth_user,
+                                    code=med.code
+                                    )
+                            )
+                        except Medication.DoesNotExist:
+                            if len(user_meds):
+                                detail = 'Acceptable values are '\
+                                        f'{[m.code for m in user_meds]}.'
+                                raise ParseError(detail=detail)
+                            else:
+                                raise ParseError(detail='You have to '
+                                                        'create a medication '
+                                                        'first.')
+                    else:
+                        raise ParseError(detail='The drone cannot load '
+                                                'the total weight of the'
+                                                ' selected medications.')
+
+                for med_get in insert_meds:
+                    instance.medications.add(med_get)
+                    instance.weight_limit -= med_get.weight
+        else:
+            raise ParseError(detail='The drone can only be loaded on '
+                                    'Idle and Loading states.')
+
+        instance.save()
+        return instance

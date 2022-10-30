@@ -9,7 +9,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Drone
+from core.models import Drone, Medication
 
 from drone.serializers import (
     DroneSerializer,
@@ -33,6 +33,16 @@ def create_drone(user, serial_number, **params):
         **params
     )
     return drone
+
+
+def create_medication(user, code, name='Testing', weight='200'):
+    """Create and return a new medication."""
+    return Medication.objects.create(
+        user=user,
+        code=code,
+        name=name,
+        weight=weight
+    )
 
 
 def create_user(**params):
@@ -122,7 +132,7 @@ class PrivateDroneAPITests(TestCase):
         url = detail_url(drone.serial_number)
 
         payload = {'serial_number': 'test23'}
-        
+
         res = self.client.put(url, payload)
 
         self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -148,7 +158,7 @@ class PrivateDroneAPITests(TestCase):
         )
 
     def test_delete_other_user_drone_error(self):
-        """Test rying to delete another users drone gives error."""
+        """Test trying to delete another users drone gives error."""
 
         other_user = create_user(
             email='test2@example.com',
@@ -163,3 +173,105 @@ class PrivateDroneAPITests(TestCase):
         self.assertTrue(
             Drone.objects.filter(serial_number=drone.serial_number).exists()
         )
+
+    def test_add_medication_drone(self):
+        """Test add a medication to selected drone."""
+        drone = create_drone(user=self.user, serial_number='Test1')
+        medication = create_medication(user=self.user, code='TEST1')
+        medication2 = create_medication(user=self.user, code='TEST2')
+
+        payload = {'medications': ['TEST1', 'TEST2']}
+        url = detail_url(drone.serial_number)
+        res = self.client.patch(url, payload, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn(medication2, drone.medications.all())
+        self.assertIn(medication, drone.medications.all())
+
+    def test_add_duplicate_medications_drone(self):
+        """Test error when trying to add the same medication."""
+        drone = create_drone(user=self.user, serial_number='Test1')
+        medication = create_medication(user=self.user, code='TEST1')
+
+        payload = {'medications': ['TEST1', 'TEST1']}
+        url = detail_url(drone.serial_number)
+        res = self.client.patch(url, payload, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotIn(medication, drone.medications.all())
+
+    def test_add_medication_overweight_drone(self):
+        """Test add a medication overweight to selected drone."""
+        drone = create_drone(
+            user=self.user,
+            serial_number='Test1'
+            )
+
+        medication = create_medication(
+            user=self.user,
+            code='TEST1',
+            weight=400
+            )
+
+        medication2 = create_medication(
+            user=self.user,
+            code='TEST2'
+            )
+
+        payload = {'medications': ['TEST1', 'TEST2']}
+        url = detail_url(drone.serial_number)
+        res = self.client.patch(url, payload, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotIn(medication2, drone.medications.all())
+        self.assertNotIn(medication, drone.medications.all())
+
+    def test_add_medications_cannot_load_drone(self):
+        """Test add medications to overweight the selected drone."""
+        drone = create_drone(
+            user=self.user,
+            serial_number='Test1'
+            )
+
+        medication = create_medication(
+            user=self.user,
+            code='TEST1',
+            weight=301
+            )
+
+        url = detail_url(drone.serial_number)
+
+        payload = {'medications': ['TEST1']}
+        res1 = self.client.patch(url, payload, format='json')
+
+        self.assertEqual(res1.status_code, status.HTTP_200_OK)
+
+        medication2 = create_medication(user=self.user, code='TEST2')
+
+        payload = {'medications': ['TEST2']}
+        res = self.client.patch(url, payload, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotIn(medication2, drone.medications.all())
+        self.assertIn(medication, drone.medications.all())
+
+    def test_add_medication_moving_drone(self):
+        """Test add a medication to a drone that is moving."""
+        drone = create_drone(
+            user=self.user,
+            serial_number='Test1',
+            state=Drone.DRONE_STATUS.ret,
+            )
+
+        medication = create_medication(
+            user=self.user,
+            code='TEST1',
+            weight=100
+            )
+
+        payload = {'medications': ['TEST1']}
+        url = detail_url(drone.serial_number)
+        res = self.client.patch(url, payload, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotIn(medication, drone.medications.all())
