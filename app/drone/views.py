@@ -30,10 +30,8 @@ class DroneViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         """Return the serializer class for request."""
-        if self.action == 'list' or self.action == 'available':
+        if self.action == 'list':
             return serializers.DroneSerializer
-        elif self.action == 'update' or self.action == 'partial_update':
-            return serializers.DroneAddSerializer
 
         return self.serializer_class
 
@@ -42,7 +40,7 @@ class DroneViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     @action(detail=False, serializer_class=serializers.DroneSerializer)
-    def available(self, *args, **kwargs):
+    def check_available(self, *args, **kwargs):
         """List all available drones to load medications."""
 
         available_drones = Drone.objects.filter(Q(state=0) | Q(state=1))
@@ -65,14 +63,24 @@ class DroneViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @action(detail=True,
-            serializer_class=serializers.DroneMedsSerializer,
-            methods=['get'])
-    def loaded_medications(self, request, *args, **kwargs):
+            serializer_class=serializers.DroneMedsSerializer)
+    def check_medication(self, request, *args, **kwargs):
         """Return the medications loaded into the selected drone."""
         obj = self.get_object()
 
-        serialized = serializers.DroneMedsSerializer(
+        serializer = serializers.DroneMedsSerializer(
             obj,
             context={'request': request})
 
-        return Response(serialized.data)
+        return Response(serializer.data)
+
+    @action(detail=True, serializer_class=serializers.DroneBatterySerializer)
+    def check_battery(self, request, *args, **kwargs):
+        """Check the battery of the drone."""
+        obj = self.get_object()
+
+        serializer = serializers.DroneBatterySerializer(
+            obj,
+            context={'request': request})
+
+        return Response(serializer.data)

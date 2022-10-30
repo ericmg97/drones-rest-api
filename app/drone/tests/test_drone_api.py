@@ -308,7 +308,7 @@ class PrivateDroneAPITests(TestCase):
             format='json')
 
         url = reverse(
-            'drone:drone-loaded-medications',
+            'drone:drone-check-medication',
             args=[drone.serial_number]
             )
 

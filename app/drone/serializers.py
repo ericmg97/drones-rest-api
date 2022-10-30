@@ -70,13 +70,32 @@ class DroneDetailSerializer(DroneSerializer):
             ]
 
 
-class DroneMedsSerializer(DroneSerializer):
+class DroneMedsSerializer(serializers.ModelSerializer):
     """Serializer for medications detail view."""
     medications = MedicationSerializer(many=True, read_only=True)
 
-    class Meta(DroneSerializer.Meta):
+    class Meta():
+        model = Drone
+        lockup_field = 'serial_number'
         fields = [
             'medications',
+            ]
+        read_only_fields = [
+            'medications',
+            ]
+
+
+class DroneBatterySerializer(serializers.ModelSerializer):
+    """Serializer for medications detail view."""
+
+    class Meta():
+        model = Drone
+        lockup_field = 'serial_number'
+        fields = [
+            'battery'
+            ]
+        read_only_fields = [
+            'battery',
             ]
 
 
