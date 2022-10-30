@@ -287,3 +287,33 @@ class PrivateDroneAPITests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotIn(medication, drone.medications.all())
+
+    def test_drone_list_medication(self):
+        """Test list all medications that are loaded into a drone."""
+        drone = create_drone(
+            user=self.user,
+            serial_number='Test1',
+            state=Drone.DRONE_STATUS.idl,
+            )
+
+        medication = create_medication(
+            user=self.user,
+            code='TEST1',
+            weight=100
+            )
+
+        self.client.post(
+            add_med_url(drone.serial_number),
+            {'medications': ['TEST1']},
+            format='json')
+
+        url = reverse(
+            'drone:drone-loaded-medications',
+            args=[drone.serial_number]
+            )
+
+        res = self.client.get(url)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        for k, v in res.data['medications'][0].items():
+            self.assertEqual(getattr(medication, k), v)

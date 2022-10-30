@@ -70,6 +70,16 @@ class DroneDetailSerializer(DroneSerializer):
             ]
 
 
+class DroneMedsSerializer(DroneSerializer):
+    """Serializer for medications detail view."""
+    medications = MedicationSerializer(many=True, read_only=True)
+
+    class Meta(DroneSerializer.Meta):
+        fields = [
+            'medications',
+            ]
+
+
 class DroneAddSerializer(serializers.ModelSerializer):
     """Serializer for add medication to drone."""
     class Meta:

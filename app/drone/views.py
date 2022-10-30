@@ -63,3 +63,16 @@ class DroneViewSet(viewsets.ModelViewSet):
         serializer.update(obj, request.data)
 
         return Response(serializer.data)
+
+    @action(detail=True,
+            serializer_class=serializers.DroneMedsSerializer,
+            methods=['get'])
+    def loaded_medications(self, request, *args, **kwargs):
+        """Return the medications loaded into the selected drone."""
+        obj = self.get_object()
+
+        serialized = serializers.DroneMedsSerializer(
+            obj,
+            context={'request': request})
+
+        return Response(serialized.data)
