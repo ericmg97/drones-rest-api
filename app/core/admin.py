@@ -68,7 +68,7 @@ class DroneAdmin(admin.ModelAdmin):
         'weight_limit',
         'battery',
         'state']
-    readonly_fields = ['battery', 'state', 'weight_limit', 'medications']
+    readonly_fields = ['weight_limit', 'medications']
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super(DroneAdmin, self).get_readonly_fields(
