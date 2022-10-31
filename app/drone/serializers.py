@@ -70,6 +70,52 @@ class DroneDetailSerializer(DroneSerializer):
             ]
 
 
+class DroneManageSerializer(DroneSerializer):
+    """Serializer for drone detail view."""
+    medications = MedicationSerializer(many=True, read_only=True)
+    drone_model = ChoicesField(Drone.DRONE_MODEL, read_only=True)
+    state = ChoicesField(Drone.DRONE_STATUS, read_only=False)
+
+    class Meta(DroneSerializer.Meta):
+        fields = DroneSerializer.Meta.fields + [
+            'medications',
+            ]
+        read_only_fields = [
+            'weight_limit',
+            'medications',
+            'serial_number',
+        ]
+
+    def update(self, instance, validated_data):
+        """Manage drone instance battery and state."""
+
+        state = validated_data.pop('state', None)
+        battery = validated_data.pop('battery', None)
+
+        if len(validated_data) > 0:
+            raise ParseError(detail='You cannot modify the following fields:'
+                                    f' {[vl for vl in validated_data]}.')
+
+        if state is not None:
+            if state == Drone.DRONE_STATUS.ldg:
+                if battery is not None:
+                    if battery < 25:
+                        raise ParseError(detail='You cannot set the state to'
+                                                ' loading if the battery is '
+                                                'below 25%.')
+            elif state == Drone.DRONE_STATUS.dld:
+                instance.weight_limit = None
+                instance.medications.clear()
+
+            instance.state = state
+
+        if battery is not None:
+            instance.battery = battery
+
+        instance.save()
+        return instance
+
+
 class DroneMedsSerializer(serializers.ModelSerializer):
     """Serializer for medications detail view."""
     medications = MedicationSerializer(many=True, read_only=True)
@@ -116,11 +162,13 @@ class DroneAddSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Add medication to drone."""
-        if instance.state == Drone.DRONE_STATUS.idl or \
-                instance.state == Drone.DRONE_STATUS.ldg:
+        medications = validated_data.pop('medications', None)
 
-            medications = validated_data.pop('medications', None)
+        if len(validated_data) > 0:
+            raise ParseError(detail='You cannot modify the following fields:'
+                                    f' {[vl for vl in validated_data]}.')
 
+        if instance.state == Drone.DRONE_STATUS.ldg:
             if len(set(medications)) != len(medications):
                 raise ParseError(detail='You cannot load the same '
                                         'medication twice into a drone.')
@@ -167,7 +215,7 @@ class DroneAddSerializer(serializers.ModelSerializer):
                     instance.weight_limit -= med_get.weight
         else:
             raise ParseError(detail='The drone can only be loaded on '
-                                    'Idle and Loading states.')
+                                    'Loading state.')
 
         instance.save()
         return instance

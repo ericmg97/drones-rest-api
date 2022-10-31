@@ -7,7 +7,6 @@ from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from django.db.models import Q
 from core.models import Drone
 from drone import serializers
 
@@ -32,6 +31,8 @@ class DroneViewSet(viewsets.ModelViewSet):
         """Return the serializer class for request."""
         if self.action == 'list':
             return serializers.DroneSerializer
+        elif self.action == 'manage':
+            return serializers.DroneManageSerializer
         elif self.action == 'load_medication':
             return serializers.DroneAddSerializer
         elif self.action == 'check_medication':
@@ -49,7 +50,7 @@ class DroneViewSet(viewsets.ModelViewSet):
     def check_available(self, *args, **kwargs):
         """List all available drones to load medications."""
 
-        available_drones = Drone.objects.filter(Q(state=0) | Q(state=1))
+        available_drones = Drone.objects.filter(state=1)
         serializer = serializers.DroneSerializer(available_drones, many=True)
 
         return Response(serializer.data)
@@ -71,6 +72,12 @@ class DroneViewSet(viewsets.ModelViewSet):
         """Check the battery of the drone."""
         obj = self.get_object()
         return self.get_and_return_response(request, obj)
+
+    @action(detail=True, methods=['post'])
+    def manage(self, request, *args, **kwargs):
+        """Manage drone status and battery."""
+        obj = self.get_object()
+        return self.get_and_return_response(request, obj, True)
 
     def get_and_return_response(self, request, obj, update=False):
         serializer = self.get_serializer(obj, data=request.data)
