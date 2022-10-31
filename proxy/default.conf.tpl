@@ -7,7 +7,7 @@ server {
 
     location / {
         uwsgi_pass           ${APP_HOST}:${APP_PORT};
-        include              /etc/nginx/uwsgi_params
+        include              /etc/nginx/uwsgi_params;
         client_max_boyy_size 10M;
     }
 }
