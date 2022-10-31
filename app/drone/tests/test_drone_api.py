@@ -30,6 +30,11 @@ def add_med_url(drone_sn):
     return reverse('drone:drone-load-medication', args=[drone_sn])
 
 
+def manage_url(drone_sn):
+    """Create and return a drone manage URL."""
+    return reverse('drone:drone-manage', args=[drone_sn])
+
+
 def create_drone(user, serial_number, **params):
     """Create and return a sample drone."""
     drone = Drone.objects.create(
@@ -130,19 +135,51 @@ class PrivateDroneAPITests(TestCase):
             self.assertEqual(getattr(drone, k), v)
         self.assertEqual(drone.user, self.user)
 
-    def test_cannot_update(self):
-        """Test that put and patch enpoints are disabled."""
+    def test_manage_drone(self):
+        """Test manage a drone status and battery."""
         drone = create_drone(user=self.user, serial_number='Test1')
-        url = detail_url(drone.serial_number)
+        url = manage_url(drone.serial_number)
 
-        payload = {'serial_number': 'test23'}
-        res = self.client.patch(url, payload)
+        payload = {'battery': 50, 'state': Drone.DRONE_STATUS.ldd}
+        res = self.client.post(url, payload, format='json')
 
-        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        drone.refresh_from_db()
+        self.assertEqual(drone.battery, payload['battery'])
 
-        res = self.client.put(url, payload)
+    def test_update_drone_to_delivered(self):
+        """
+        Test that updating a drone to delivered status, the weight
+        limit and the medications most return to default.
+        """
+        drone = create_drone(user=self.user, serial_number='Test1')
+        medication = create_medication(user=self.user, code=['TESTING'])
 
-        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        payload = {'medications': ['TESTING']}
+        url = add_med_url(drone.serial_number)
+        self.client.post(url, payload, format='json')
+
+        url = manage_url(drone.serial_number)
+        payload = {'battery': 10, 'state': Drone.DRONE_STATUS.dld}
+        res = self.client.post(url, payload, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        drone.refresh_from_db()
+        self.assertNotIn(medication, drone.medications.all())
+        self.assertEqual(
+            drone.weight_limit,
+            drone.DRONE_WEIGHTS[drone.drone_model]
+            )
+
+    def test_cannot_update_to_loading_battery_level(self):
+        """Test cannot update the state to loading if battery <25%."""
+        drone = create_drone(user=self.user, serial_number='Test1')
+        url = manage_url(drone.serial_number)
+
+        payload = {'battery': 19, 'state': Drone.DRONE_STATUS.ldg}
+        res = self.client.post(url, payload, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_cannot_create_incorrect_sn(self):
         """Test cannot create drone with incorrect serial number."""
@@ -186,7 +223,9 @@ class PrivateDroneAPITests(TestCase):
         drone = create_drone(
             user=self.user,
             serial_number='Test1',
-            drone_model=3)
+            drone_model=3,
+            state=Drone.DRONE_STATUS.ldg,
+            )
 
         medication = create_medication(user=self.user, code='TEST1')
         medication2 = create_medication(user=self.user, code='TEST2')
@@ -243,6 +282,7 @@ class PrivateDroneAPITests(TestCase):
             user=self.user,
             serial_number='Test1',
             drone_model=3,
+            state=Drone.DRONE_STATUS.ldg,
             )
 
         medication = create_medication(
@@ -293,7 +333,7 @@ class PrivateDroneAPITests(TestCase):
         drone = create_drone(
             user=self.user,
             serial_number='Test1',
-            state=Drone.DRONE_STATUS.idl,
+            state=Drone.DRONE_STATUS.ldg,
             )
 
         medication = create_medication(
