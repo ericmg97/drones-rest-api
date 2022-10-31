@@ -20,6 +20,7 @@ services:
     command: >
       sh -c "python manage.py wait_for_db &&
              python manage.py migrate &&
+             python manage.py add_fixtures db_test_initial.json &&
              python manage.py runserver 0.0.0.0:8000"
     depends_on:
       - db
