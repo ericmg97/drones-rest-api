@@ -1,10 +1,12 @@
 """
 Serializers for drone APIs
 """
-from rest_framework import serializers
+import logging
 
 from core.models import Drone, Medication
+
 from rest_framework.exceptions import ParseError
+from rest_framework import serializers
 
 from medication.serializers import MedicationSerializer
 
@@ -110,6 +112,11 @@ class DroneManageSerializer(DroneSerializer):
             instance.state = state
 
         if battery is not None:
+            if instance.battery != battery:
+                logging.getLogger('battery_log').info(
+                    f'[{instance.serial_number}] Battery Change -> '
+                    f'from:{instance.battery}% -> to:{battery}%'
+                    )
             instance.battery = battery
 
         instance.save()
