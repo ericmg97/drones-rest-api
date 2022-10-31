@@ -1,0 +1,187 @@
+[
+{
+    "model": "core.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$320000$euusaRZIdGdwNnW8VtyYK0$/b33Xrn0U+IiPgsZyZ5toJgoG4lCbsFt0rDpOomAfUw=",
+        "last_login": "2022-10-31T21:09:27.588Z",
+        "is_superuser": true,
+        "email": "admin@example.com",
+        "name": "",
+        "is_active": true,
+        "is_staff": true,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "core.drone",
+    "pk": "DRONE1",
+    "fields": {
+        "user": 1,
+        "drone_model": 0,
+        "weight_limit": 100,
+        "battery": 100,
+        "state": 0,
+        "medications": []
+    }
+},
+{
+    "model": "core.drone",
+    "pk": "DRONE10",
+    "fields": {
+        "user": 1,
+        "drone_model": 1,
+        "weight_limit": 250,
+        "battery": 100,
+        "state": 0,
+        "medications": []
+    }
+},
+{
+    "model": "core.drone",
+    "pk": "DRONE2",
+    "fields": {
+        "user": 1,
+        "drone_model": 1,
+        "weight_limit": 250,
+        "battery": 100,
+        "state": 0,
+        "medications": []
+    }
+},
+{
+    "model": "core.drone",
+    "pk": "DRONE3",
+    "fields": {
+        "user": 1,
+        "drone_model": 2,
+        "weight_limit": 350,
+        "battery": 100,
+        "state": 0,
+        "medications": []
+    }
+},
+{
+    "model": "core.drone",
+    "pk": "DRONE4",
+    "fields": {
+        "user": 1,
+        "drone_model": 3,
+        "weight_limit": 500,
+        "battery": 100,
+        "state": 0,
+        "medications": []
+    }
+},
+{
+    "model": "core.drone",
+    "pk": "DRONE5",
+    "fields": {
+        "user": 1,
+        "drone_model": 0,
+        "weight_limit": 100,
+        "battery": 100,
+        "state": 0,
+        "medications": []
+    }
+},
+{
+    "model": "core.drone",
+    "pk": "DRONE6",
+    "fields": {
+        "user": 1,
+        "drone_model": 1,
+        "weight_limit": 250,
+        "battery": 100,
+        "state": 0,
+        "medications": []
+    }
+},
+{
+    "model": "core.drone",
+    "pk": "DRONE7",
+    "fields": {
+        "user": 1,
+        "drone_model": 3,
+        "weight_limit": 500,
+        "battery": 100,
+        "state": 0,
+        "medications": []
+    }
+},
+{
+    "model": "core.drone",
+    "pk": "DRONE8",
+    "fields": {
+        "user": 1,
+        "drone_model": 2,
+        "weight_limit": 350,
+        "battery": 100,
+        "state": 0,
+        "medications": []
+    }
+},
+{
+    "model": "core.drone",
+    "pk": "DRONE9",
+    "fields": {
+        "user": 1,
+        "drone_model": 0,
+        "weight_limit": 100,
+        "battery": 100,
+        "state": 0,
+        "medications": []
+    }
+},
+{
+    "model": "core.medication",
+    "pk": "MEDICATION1",
+    "fields": {
+        "user": 1,
+        "name": "Medication1",
+        "weight": 100,
+        "image": ""
+    }
+},
+{
+    "model": "core.medication",
+    "pk": "MEDICATION2",
+    "fields": {
+        "user": 1,
+        "name": "Medication2",
+        "weight": 50,
+        "image": ""
+    }
+},
+{
+    "model": "core.medication",
+    "pk": "MEDICATION3",
+    "fields": {
+        "user": 1,
+        "name": "Medication3",
+        "weight": 300,
+        "image": ""
+    }
+},
+{
+    "model": "core.medication",
+    "pk": "MEDICATION4",
+    "fields": {
+        "user": 1,
+        "name": "Medication4",
+        "weight": 200,
+        "image": ""
+    }
+},
+{
+    "model": "core.medication",
+    "pk": "MEDICATION5",
+    "fields": {
+        "user": 1,
+        "name": "Medication5",
+        "weight": 500,
+        "image": ""
+    }
+}
+]
