@@ -154,3 +154,31 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     'COMPONENT_SPLIT_REQUEST': True
 }
+
+LOG_ROOT = '/vol/web/logs/'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': LOG_ROOT + 'battery_history.log',
+            'formatter': 'battery_formatter'
+        },
+    },
+    'formatters':{
+        'battery_formatter': {
+            'format':"{asctime} - {message}",
+            'style':'{',
+            }
+        },
+    'loggers': {
+        'battery_log': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}

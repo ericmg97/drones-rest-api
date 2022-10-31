@@ -2,6 +2,7 @@
 Tests for drone APIs.
 """
 
+import logging
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -137,6 +138,8 @@ class PrivateDroneAPITests(TestCase):
 
     def test_manage_drone(self):
         """Test manage a drone status and battery."""
+        logging.disable(logging.CRITICAL)
+
         drone = create_drone(user=self.user, serial_number='Test1')
         url = manage_url(drone.serial_number)
 
@@ -152,6 +155,8 @@ class PrivateDroneAPITests(TestCase):
         Test that updating a drone to delivered status, the weight
         limit and the medications most return to default.
         """
+        logging.disable(logging.CRITICAL)
+
         drone = create_drone(user=self.user, serial_number='Test1')
         medication = create_medication(user=self.user, code=['TESTING'])
 
