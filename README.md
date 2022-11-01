@@ -1,5 +1,4 @@
-# drones-rest-api
-
+# DRONES MANAGEMENT WITH DJANGO REST API
 :scroll: **START**
 
 ## Introduction
