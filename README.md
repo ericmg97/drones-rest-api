@@ -240,6 +240,8 @@ Email: admin@example.com
 Password: Example1
 ```
 
+---
+
 Swagger View of API:
 ![image](https://user-images.githubusercontent.com/39969751/199131772-1514e337-2d31-47c7-adff-c5800acd72f7.png)
 
