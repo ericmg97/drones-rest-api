@@ -68,7 +68,7 @@ While implementing your solution **please take care of the following requirement
 
 ## Installation
 
-To build and install this solution you just need to setup **docker** and **docker-compose**. Optionally, you can add them to your *system path*.
+To install this solution you just need to setup **docker** and **docker-compose**. Optionally, you can add them to your *system path*.
 
 ### Docker
 
@@ -114,6 +114,8 @@ To build and run this project, you just have to execute the following commands i
 
 ```bash
 docker-compose build
+
+
 $ docker-compose up
 [+] Running 5/4
  - Network drones-rest-api_default       Created                                                                   0.0s
