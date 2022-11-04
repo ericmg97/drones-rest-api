@@ -1,9 +1,9 @@
 """
 Django command to add fixtures if the database is empty.
 """
-import os
 from django.core.management.commands import loaddata
 from core.models import User
+
 
 class Command(loaddata.Command):
     def handle(self, *args, **options):
